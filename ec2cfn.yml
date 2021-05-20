@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Uchenna Emeruche - Provisioning EC2 instance and Security Group
+# vpc-d5ecd8ad VPC ID
+# ami-0cf6f5c8a62fa5da6 - image ID
+# subnet-7549c80d -- subnet id
+Parameters:
+  myVPC:
+    Description: VPC used to deploy resources
+    Type: AWS::EC2::VPC::Id
+  PublicSubnet:
+    Description: Subnet to deploy web server resources
+    Type: AWS::EC2::Subnet::Id
+  AMItoUse:
+    Description: AMI to use for the ec2 instance
+    Type: String
+
+Resources:
+  myWebAccessSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group Description
+      VpcId:  
+        Ref: myVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: SecGroup
+
+  myEC2WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMItoUse 
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          GroupSet:
+          - Ref: "myWebAccessSecurityGroup"
+          SubnetId:
+            Ref: "PublicSubnet"
+      UserData: 
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo yum update -y
+          sudo yum install -y httpd
+          sudo systemctl start httpd
+          sudo systemctl enable httpd
+      Tags:
+        - Key: Name
+          Value: Ec2Instance
