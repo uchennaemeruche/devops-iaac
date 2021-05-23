@@ -49,9 +49,39 @@ Resources:
           FromPort: 0
           ToPort: 65535
           CidrIp: 0.0.0.0/0
-
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName}-webserver-security-group 
+  WebServerLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      LaunchConfigurationName: 
+      AssociatePublicIpAddress: true|false
+      IamInstanceProfile: 
+      ImageId: 
+      EbsOptimized: true|false
+      InstanceMonitoring: true|false
+      InstanceType: 
+      KernelId: 
+      KeyName: 
+      SecurityGroups:
+        - sg-id
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Install docker
+          apt-get update
+          apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          add-apt-repository \
+          "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+          $(lsb_release -cs) \
+          stable"
+          apt-get update
+          apt-get install -y docker-ce
+          usermod -aG docker ubuntu
+          docker run -p 8080:8080 tomcat:8.0
+
+  
 
 # Outputs:
