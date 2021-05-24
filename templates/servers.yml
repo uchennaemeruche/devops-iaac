@@ -55,17 +55,15 @@ Resources:
   WebServerLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      LaunchConfigurationName: 
-      AssociatePublicIpAddress: true|false
-      IamInstanceProfile: 
-      ImageId: 
-      EbsOptimized: true|false
-      InstanceMonitoring: true|false
-      InstanceType: 
-      KernelId: 
-      KeyName: 
+      ImageId: ami-090717c950a5c34d3
+      InstanceType: t2.micro
+      KeyName: my-fav-server-key
       SecurityGroups:
-        - sg-id
+        - Ref: WebServerSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:  
+            VolumeSize: '10'
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -81,6 +79,70 @@ Resources:
           apt-get install -y docker-ce
           usermod -aG docker ubuntu
           docker run -p 8080:8080 tomcat:8.0
+
+  WebAppAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier: 
+      - Fn::ImportValue:
+          !Sub "${EnvironmentName}-PRIV-NETS"
+      LaunchConfigurationName: 
+        Ref: WebServerLaunchConfig
+      MaxSize: 5
+      MinSize: 3
+      TargetGroupARNs:
+        - Ref: WebAppTargetGroup
+  WepAppLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      # IpAddressType: String
+      # LoadBalancerAttributes: 
+      #   - LoadBalancerAttribute
+      # Name: String
+      # Scheme: String
+      SecurityGroups: 
+        - Ref: LBSecurityGroup
+      Subnets: 
+        - Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
+          Fn::ImportValue: !Sub "${EnvironmentName}-PUB2-SN"
+  Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn:
+            Ref: WebAppTargetGroup
+      LoadBalancerArn: !Ref WepAppLoadBalancer
+      Port: 80
+      Protocol: HTTP
+  ListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref WebAppTargetGroup
+      Conditions:
+        - Field: path-pattern
+          Values: [/]
+      ListenerArn: !Ref Listener
+      Priority: 1
+  WebAppTargetGroup:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /
+      HealthCheckProtocl: HTTP
+      HealthCheckTimeoutSeconds: 8
+      HealthyThresholdCount: 2
+      port: 8080
+      protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VPCId: 
+        Fn::ImportValue:
+          Fn::Sub: "${EnvironmentName}-VPCID"
+
+  
+    
 
   
 
