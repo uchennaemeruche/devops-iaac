@@ -88,7 +88,8 @@ Resources:
           apt-get update
           apt-get install -y docker-ce
           usermod -aG docker ubuntu
-          docker run -p 8080:8080 tomcat:8.0
+          docker run -p 8080:3000 emeruche/ec2-node-app
+          docker run -p 80:3000 emeruche/ec2-node-app
 
   WebAppAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
