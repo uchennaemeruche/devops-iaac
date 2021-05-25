@@ -103,8 +103,8 @@ Resources:
       SecurityGroups: 
         - Ref: LBSecurityGroup
       Subnets: 
-        - Fn::ImportValue: !Sub "${EnvironmentName}-PUB1-SN"
-          Fn::ImportValue: !Sub "${EnvironmentName}-PUB2-SN"
+        - Fn::ImportValue: !Sub ${EnvironmentName}-PUB1-SN
+          Fn::ImportValue: !Sub ${EnvironmentName}-PUB2-SN
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
