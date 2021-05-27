@@ -1,0 +1,14 @@
+[
+     {
+        "ParameterKey":"EnvironmentName",
+        "ParameterValue": "UdacityProj"
+    },
+    {
+        "ParameterKey": "DbUsername",
+        "ParameterValue": "admin"
+    },
+    {
+        "ParameterKey":"DbPassword",
+        "ParameterValue": "password"
+    }
+]

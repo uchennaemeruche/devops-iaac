@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Uchenna Emeruche - RDS Cloud formation script
+
+Parameters: 
+  EnvironmentName:
+    Description: An environment name to be prefixed to each provisioned resource name.
+    Type: String
+  DbUsername:
+    Description: Database Instance Username
+    Type: String
+  DbPassword:
+    Description: Database Instance Password
+    Type: String
+
+Resources: 
+  MyDbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets to use for DB instance
+      SubnetIds:
+        - subnet-id
+    Tags:
+      - Key: Name
+        Value: !Sub ${EnvironmentName}-DB-Subnet-Group
+  
+  MyDbInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 
+      DBInstanceClass: 
+      AllowMajorVersionUpgrade: true|false
+      AutoMinorVersionUpgrade: true|false
+      AvailabilityZone: 
+      BackupRetentionPeriod: 
+      CharacterSetName: 
+      DBInstanceIdentifier: 
+      DBName: 
+      DBParameterGroupName: 
+      DBSecurityGroups: 
+        - db-sg-group
+      DBSnapshotIdentifier: 
+      DBSubnetGroupName: 
+      Engine: mysql
+      EngineVersion: 
+      Iops: 
+      KmsKeyId: 
+      LicenseModel: 
+      MasterUsername: 
+      MasterUserPassword: 
+      MultiAZ: true|false
+      OptionGroupName: 
+      Port: 
+      PreferredBackupWindow: 
+      PreferredMaintenanceWindow: 
+      PubliclyAccessible: true|false
+      SourceDBInstanceIdentifier: 
+      StorageEncrypted: true|false
+      StorageType: 
+      VPCSecurityGroups:
+        - vpc-sg-id
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-MySQL-RDS
+
+Outputs:
